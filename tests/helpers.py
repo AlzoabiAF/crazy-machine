@@ -41,7 +41,7 @@ class ContractCase(unittest.TestCase):
         )
 
     def reject(self, teapot, exc_type, method_name, *args, **kwargs):
-        """Проверяет ошибочную команду и неизменность полного состояния.
+        """Проверяет исключение, значения и точные типы полей после отказа.
 
         Возвращает пойманное исключение.
         """
@@ -49,12 +49,7 @@ class ContractCase(unittest.TestCase):
         method = getattr(teapot, method_name)
         with self.assertRaises(exc_type) as caught:
             method(*args, **kwargs)
-        after = teapot.get_state()
-        self.assertEqual(
-            after,
-            before,
-            "Ошибочная команда %s изменила состояние" % method_name,
-        )
+        self.assert_state(teapot, before)
         return caught.exception
 
     def assert_state(self, teapot, expected):
