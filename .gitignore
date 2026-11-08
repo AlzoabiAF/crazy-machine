@@ -1,0 +1,24 @@
+# Local MCP configuration may contain credentials.
+.mcp
+.mcp/
+.mcp.json
+.mcp.*.json
+
+# Original assignment materials stay outside the published repository.
+*.docx
+*.pdf
+
+# Python bytecode, environments and test artifacts.
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor and OS files.
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
