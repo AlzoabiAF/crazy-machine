@@ -316,11 +316,20 @@ class TestAcceptance(ContractCase):
     def test_pt21_state_protection(self):
         """ПТ-21. Изменение словаря get_state() не меняет внутреннее состояние."""
         teapot = self.make()
-        snapshot = teapot.get_state()
-        self.assertEqual(snapshot, INITIAL_STATE)
-        snapshot["energy"] = 0
-        self.assertIsNot(snapshot, teapot.get_state())
+        first = teapot.get_state()
+        second = teapot.get_state()
+        self.assertIsNot(first, second)
+
+        first["energy"] = 0
+        self.assertEqual(second, INITIAL_STATE)
         self.assert_state(teapot, INITIAL_STATE)
+
+        self.command(teapot, "take_off")
+        self.assertEqual(second, INITIAL_STATE)
+        self.assert_state(
+            teapot,
+            dict(INITIAL_STATE, altitude=10, energy=50, is_airborne=True),
+        )
 
     def test_pt22_portal_bounds(self):
         """ПТ-22. tornado_portal(101, 0) вызывает ValueError."""
