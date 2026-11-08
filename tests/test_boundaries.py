@@ -231,49 +231,24 @@ class TestBoundaries(ContractCase):
             self.command(teapot, "descend", 30)
             self.assert_state(teapot, state_of(0, 0, 10, 44, 0, True))
 
-        with self.subTest(method="move", argument="total x", value=110,
-                          condition="three flight cycles with applause refills"):
-            teapot = self.make()
-            for method, args in (
-                ("take_off", ()),
-                ("move", (20, 0)),
-                ("move", (20, 0)),
-                ("land", ()),
-                ("applause", (10,)),
-                ("take_off", ()),
-                ("move", (20, 0)),
-                ("move", (20, 0)),
-                ("land", ()),
-                ("applause", (10,)),
-                ("take_off", ()),
-                ("move", (20, 0)),
-                ("move", (10, 0)),
-                ("land", ()),
-            ):
-                self.command(teapot, method, *args)
-            self.assert_state(teapot, state_of(110, 0, 0, 20, 0, False))
+        for axis, direction in (("x", 1), ("x", -1), ("y", 1), ("y", -1)):
+            with self.subTest(axis=axis, direction=direction):
+                teapot = self.make()
+                step = (20 * direction, 0) if axis == "x" else (0, 20 * direction)
+                last_step = tuple(delta // 2 for delta in step)
+                for _ in range(2):
+                    self.command(teapot, "take_off")
+                    self.command(teapot, "move", *step)
+                    self.command(teapot, "move", *step)
+                    self.command(teapot, "land")
+                    self.command(teapot, "applause", 10)
 
-        with self.subTest(method="move", argument="total x", value=-110,
-                          condition="three flight cycles with applause refills"):
-            teapot = self.make()
-            for method, args in (
-                ("take_off", ()),
-                ("move", (-20, 0)),
-                ("move", (-20, 0)),
-                ("land", ()),
-                ("applause", (10,)),
-                ("take_off", ()),
-                ("move", (-20, 0)),
-                ("move", (-20, 0)),
-                ("land", ()),
-                ("applause", (10,)),
-                ("take_off", ()),
-                ("move", (-20, 0)),
-                ("move", (-10, 0)),
-                ("land", ()),
-            ):
-                self.command(teapot, method, *args)
-            self.assert_state(teapot, state_of(-110, 0, 0, 20, 0, False))
+                self.command(teapot, "take_off")
+                self.command(teapot, "move", *step)
+                self.command(teapot, "move", *last_step)
+                self.command(teapot, "land")
+                x, y = (110 * direction, 0) if axis == "x" else (0, 110 * direction)
+                self.assert_state(teapot, state_of(x, y, 0, 20, 0, False))
 
     # ------------------------------------------------------------------
     # ДТ-04. Приоритет ValueError над RuntimeError
